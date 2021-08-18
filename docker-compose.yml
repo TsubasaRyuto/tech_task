@@ -1,0 +1,69 @@
+version: '3.8'
+services:
+  db:
+    container_name: db
+    build:
+      context: ./
+      dockerfile: ./backend/db/Dockerfile
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_USER: 'django'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_DATABASE: 'sample'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    volumes:
+      - ./backend/db/mysql_data:/var/lib/mysql:delegated
+    ports:
+      - '3306:3306'
+    logging:
+      driver: 'json-file' # defaults if not specified
+      options:
+        max-size: '10m'
+        max-file: '3'
+  technical_task_backend:
+    container_name: technical_task_backend
+    build:
+      context: ./
+      dockerfile: ./backend/django/Dockerfile
+    command: python3 /src/manage.py runserver 0.0.0.0:8000
+    ports:
+      - '8000:8000'
+    volumes:
+      - ./backend/src:/src:delegated
+    env_file:
+      - ./backend/src/.env
+    depends_on:
+      - db
+      - mock-server
+    logging:
+      driver: 'json-file' # defaults if not specified
+      options:
+        max-size: '10m'
+        max-file: '3'
+  technical_task_front:
+    container_name: technical_task_front
+    build:
+      context: ./
+      dockerfile: ./frontend/Dockerfile
+    volumes:
+      - ./frontend/:/src
+    command: sh -c "yarn start"
+    depends_on:
+      - technical_task_backend
+    ports:
+      - "3333:3333"
+  mock-server:
+    build:
+      context: ./
+      dockerfile: ./backend/mock/Dockerfile
+    command: node server.js
+    volumes:
+      - ./backend/mock/:/src
+    ports:
+      - "9999:9999"
+    logging:
+      driver: 'json-file' # defaults if not specified
+      options:
+        max-size: '10m'
+        max-file: '3'

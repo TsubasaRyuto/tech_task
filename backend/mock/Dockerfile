@@ -1,0 +1,6 @@
+FROM node:10.15.3
+
+ENV APP_ROOT /src
+
+RUN mkdir $APP_ROOT
+WORKDIR $APP_ROOT
