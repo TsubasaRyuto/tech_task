@@ -40,3 +40,9 @@ shellscriptを用意してあるので以下のコマンド実行していただ
 ./start-service.sh
 ```
 
+## 環境構築時のエラー対応
+`django.db.utils.OperationalError: (2002, "Can't connect to MySQL server on 'db' (115)")`
+のようなエラーが出た場合、django serverを再起動すると治る可能性があります
+```
+docker restart technical_task_backend
+```
